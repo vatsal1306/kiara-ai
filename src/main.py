@@ -592,6 +592,22 @@ def process_full_message(full_msg: dict) -> Optional[dict]:
     logger.info("Saved extracted info for %s -> %s", message_id, out_path)
     return normalized
 
+def filter_messages_after_ms(full_msgs: List[dict], last_seen_ts_sec: int) -> List[dict]:
+    """
+    Return only messages whose internalDate (ms) is strictly greater than last_seen_ts_sec*1000.
+    Keeps original chronological order (assuming full_msgs already sorted ascending).
+    """
+    cutoff_ms = int(last_seen_ts_sec) * 1000
+    filtered = []
+    for m in full_msgs:
+        try:
+            ts = int(m.get("internalDate", 0))
+        except Exception:
+            ts = 0
+        if ts > cutoff_ms:
+            filtered.append(m)
+    return filtered
+
 
 # --- Helper: fetch and sort full messages by internalDate -------------------
 def fetch_full_messages_sorted(service, message_ids: List[str]) -> List[dict]:
@@ -690,6 +706,9 @@ def main_loop():
                 else:
                     # Fetch full messages and sort chronologically (oldest -> newest)
                     full_msgs = fetch_full_messages_sorted(service, ids)
+                    last_seen = load_last_seen(LAST_SEEN_STORE) or {}
+                    last_seen_ts_sec = int(last_seen.get("last_seen_ts", 0))
+                    full_msgs = filter_messages_after_ms(full_msgs, last_seen_ts_sec)
                     processed_count = 0
                     newest_ts_ms = None
                     newest_msg_id = None
