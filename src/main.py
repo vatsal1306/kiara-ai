@@ -279,6 +279,7 @@ def call_ollama_generate(prompt: str, model: str = OLLAMA_MODEL, timeout: int = 
         "temperature": 0.0,
         "max_tokens": 512
     }
+    breakpoint()
     resp = requests.post(OLLAMA_API_URL, json=payload, timeout=timeout)
     logger.info(f"LLM response status: {resp.status_code}")
     resp.raise_for_status()
