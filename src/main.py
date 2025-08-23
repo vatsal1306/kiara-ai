@@ -280,6 +280,7 @@ def call_ollama_generate(prompt: str, model: str = OLLAMA_MODEL, timeout: int = 
         "max_tokens": 512
     }
     resp = requests.post(OLLAMA_API_URL, json=payload, timeout=timeout)
+    logger.info(f"LLM response status: {resp.status_code}")
     resp.raise_for_status()
     return resp.text
 
