@@ -706,9 +706,11 @@ def main_loop():
                 else:
                     # Fetch full messages and sort chronologically (oldest -> newest)
                     full_msgs = fetch_full_messages_sorted(service, ids)
+                    logger.info("Fetched %d messages since last seen", len(full_msgs))
                     last_seen = load_last_seen(LAST_SEEN_STORE) or {}
                     last_seen_ts_sec = int(last_seen.get("last_seen_ts", 0))
                     full_msgs = filter_messages_after_ms(full_msgs, last_seen_ts_sec)
+                    logger.info("Filtered %d messages since last seen", len(full_msgs))
                     processed_count = 0
                     newest_ts_ms = None
                     newest_msg_id = None
