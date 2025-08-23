@@ -538,7 +538,9 @@ def process_full_message(full_msg: dict) -> Optional[dict]:
 
     prompt = build_llm_prompt({**email_meta, "message_id": message_id}, pre_body, reference_iso)
     try:
+        logger.info("Calling LLM")
         llm_out_text = call_ollama_generate(prompt, model=OLLAMA_MODEL)
+        logger.info("LLM call successful")
     except Exception:
         logger.exception("LLM call failed for message %s", message_id)
         return None
@@ -573,6 +575,7 @@ def process_full_message(full_msg: dict) -> Optional[dict]:
     ])
     if meeting_found:
         try:
+            logger.info("Meeting found for message %s", message_id)
             # email_meta was built earlier in this function
             on_meeting_detected(normalized, email_meta, full_msg)
         except Exception:
