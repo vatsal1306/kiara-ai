@@ -47,6 +47,7 @@ OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3")
 OLLAMA_API_URL = os.getenv("OLLAMA_API_URL", "http://localhost:11434/api/generate")
 
 POLL_INTERVAL = int(os.getenv("POLL_INTERVAL", "300"))  # seconds
+LLM_TIMEOUT = int(os.getenv("TIMEOUT", "120"))  # seconds
 LAST_SEEN_STORE = os.getenv("LAST_SEEN_STORE", "last_seen.json")
 PROCESSED_STORE = os.getenv("PROCESSED_STORE", "processed_ids.json")  # kept for backward compatibility (unused)
 OUTPUT_DIR = os.getenv("OUTPUT_DIR", "outputs")
@@ -541,7 +542,7 @@ def process_full_message(full_msg: dict) -> Optional[dict]:
     prompt = build_llm_prompt({**email_meta, "message_id": message_id}, pre_body, reference_iso)
     try:
         logger.info("Calling LLM")
-        llm_out_text = call_ollama_generate(prompt, model=OLLAMA_MODEL)
+        llm_out_text = call_ollama_generate(prompt, model=OLLAMA_MODEL, timeout=LLM_TIMEOUT)
         logger.info("LLM call successful")
     except Exception:
         logger.exception("LLM call failed for message %s", message_id)
